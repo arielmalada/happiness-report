@@ -5,18 +5,18 @@
 
 import json
 import numpy as np 
-import pandas as pd 
-
+import pandas as pd
 import matplotlib.pyplot as plt 
-import numpy as np 
-import pandas as pd 
+#import dash as dash
+import plotly as py
+import plotly.express as px
+import plotly.graph_objects as go
 
 from plotly.offline import init_notebook_mode, iplot, plot
-from dash import Dash, html, dcc
-import plotly as py
-init_notebook_mode(connected=True)
-import plotly.express as px
 from dash import Dash, html, dcc, Input, Output
+
+init_notebook_mode(connected=True)
+
 
 
 # In[2]:
@@ -175,6 +175,15 @@ happinessScoreVisual = html.Div([
                             )
                         ], style={ 'display': 'inline-block', 'padding': '0 20'})
 
+# In[ ]:
+
+
+happinessScoreVisual = html.Div([
+                            dcc.Graph(
+                                id='happiness-score-detail-polarchart'
+                            )
+                        ], style={ 'display': 'inline-block', 'padding': '0 20'})
+
 
 # In[15]:
 
@@ -233,6 +242,63 @@ def update_graph(year_value):
 @app.callback(
     Output('happiness-score-scatter-line', 'figure'),
     Input('geospatial', 'hoverData'))
+def update_graph(HoverData):
+    countryName = HoverData['points'][0]['hovertext']
+    df=mergedData[mergedData['Country_Name'] == countryName]
+    fig =  px.scatter(df, 
+                      x="Time", 
+                      y="Happiness_Score",
+                      hover_name="Country_Name" )
+    fig.update_traces(mode='lines+markers')
+    return fig
+
+# In[17]:
+# logging
+# @app.callback(
+#     Output('hover-data', 'children'),
+#     Input('geospatial', 'hoverData'))
+# def display_hover_data(hoverData):
+#     return json.dumps(hoverData, indent=2)
+
+# In[18]:
+
+# # Data for the polar chart
+# categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'Category 7']
+# values = [4, 7, 2, 5, 1, 6, 3]
+# colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta']
+
+# # Create traces for each category
+# traces = []
+# for i in range(len(categories)):
+#     trace = go.Barpolar(
+#         r=[values[i]],
+#         theta=[categories[i]],
+#         width=1,
+#         marker=dict(color=colors[i]),
+#         name=categories[i]
+#     )
+#     traces.append(trace)
+
+# # Layout for the polar chart
+# layout = go.Layout(
+#     polar=dict(
+#         radialaxis=dict(range=[0, max(values)]),
+#     ),
+# )
+
+# # Create the figure
+# fig2 = go.Figure(data=traces, layout=layout)
+# fig2.show()
+
+
+# I don't understand how callbacks works, but I wanted to show the detail of each subscore 
+# of the happiness score once user hovers over a point of the happiness score visualization, 
+# i.e: once a couple Country/Year is chosen, display the score detail following previously commented code
+
+# happiness score detail visualization
+@app.callback(
+    Output('happiness-score-detail-polarchart', 'figure'),
+    Input('happiness-score-scatter-line', 'hoverData'))
 def update_graph(geoHoverData):
     countryName = geoHoverData['points'][0]['hovertext']
     df=mergedData[mergedData['Country_Name'] == countryName]
@@ -243,22 +309,12 @@ def update_graph(geoHoverData):
     fig.update_traces(mode='lines+markers')
     return fig
 
-# logging
-# @app.callback(
-#     Output('hover-data', 'children'),
-#     Input('geospatial', 'hoverData'))
-# def display_hover_data(hoverData):
-#     return json.dumps(hoverData, indent=2)
-
-# In[18]:
-
-
-if __name__ == '__main__':
-    app.run_server(port=8088, debug=True)
 
 
 # In[ ]:
 
 
+if __name__ == '__main__':
+    app.run_server(port=8088, debug=True)
 
 
