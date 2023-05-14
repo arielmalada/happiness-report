@@ -187,10 +187,10 @@ app.layout = html.Div([
                 options={
                   'GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)':'Economic Production',
                   'Life_expectancy_at_birth,_female_(years)#Life_expectancy_at_birth,_male_(years)':'Health',
-                  'Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)#CPIA_social_protection_rating_(1=low_to_6=high)':'Social Support',
-                  'Intentional_homicides_(per_100,000_people)#Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)':'Human Rights',
-                  'Proportion_of_people_living_below_50_percent_of_median_income_(%)#Multidimensional_poverty_headcount_ratio_(%_of_total_population)':'Charity',
-                  'CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)#CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)':'Corruption'
+                  #'Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)#CPIA_social_protection_rating_(1=low_to_6=high)':'Social Support',
+                  #'Intentional_homicides_(per_100,000_people)#Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)':'Human Rights',
+                  #'Proportion_of_people_living_below_50_percent_of_median_income_(%)#Multidimensional_poverty_headcount_ratio_(%_of_total_population)':'Charity',
+                  #'CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)#CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)':'Corruption'
                 },
                 value= 'GDP_per_capita_growth_(annual_%),CO2_emissions_(metric_tons_per_capita)',
                 id='crossfilter-yaxis-column',

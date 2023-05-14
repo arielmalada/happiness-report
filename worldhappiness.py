@@ -15,13 +15,29 @@ df['Year']= df['Year_old'].str.split(' ').str[0]
 del df['Year_old']
 df['Year']=df['Year'].astype(int)
 
+economiclist = ['GDP_per_capita_growth_(annual_%)','CO2_emissions_(metric_tons_per_capita)']
+healthlist = ['Life_expectancy_at_birth,_total_(years)','CO2_intensity_(kg_per_kg_of_oil_equivalent_energy_use)']
+sociallist = [ 'CPIA_social_protection_rating_(1=low_to_6=high)','Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)']
+rightslist = [ 'Intentional_homicides_(per_100,000_people)'
+'CPIA_quality_of_public_administration_rating_(1=low_to_6=high)']
+charitylist = ['Proportion_of_people_living_below_50_percent_of_median_income_(%)','Multidimensional_poverty_headcount_ratio_(%_of_total_population)']
+corruptionlist = ['CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)', 
+'CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)']
+
 app.layout = html.Div([
     html.Div([
 
         html.Div([
             dcc.Dropdown(
-                df['Series Name'].unique(),
-                'GDP per capita growth (annual %)',
+                options={
+                        'Economic Production': economiclist,
+                        'Health': healthlist,
+                        'Social Support': sociallist,
+                        'Human Rights': rightslist,
+                        'Charity': charitylist,
+                        'Corruption': corruptionlist,
+                },
+                value=economiclist,
                 id='crossfilter-xaxis-column',
             ),
             dcc.RadioItems(
