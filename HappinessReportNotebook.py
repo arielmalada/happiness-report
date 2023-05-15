@@ -175,17 +175,9 @@ fig1 = px.choropleth(mergedData,
 fig1.show()
 
 
-# In[ ]:
-
-
 geospatialVisual = html.Div([dcc.Graph(id='geospatial', hoverData={'points': [{'hovertext': 'Finland'}]})], style={'padding': '0 20'})
-
-
-# In[ ]:
-
-
 happinessScoreVisual = html.Div([dcc.Graph(id='happiness-score-scatter-line')], style={'padding': '0 20'})
-
+# polarChartVisual = html.Div([dcc.Graph(id='polar-chart')], style={'padding': '0 20'})
 
 # In[15]:
 
@@ -222,6 +214,7 @@ app.layout = html.Div([
         html.Div([
             geospatialVisual,
             happinessScoreVisual,
+            # polarChartVisual
         ], style={
             'width': '69%',
             'padding': '10px 5px',
@@ -339,6 +332,20 @@ def update_indicator_series2(geoHoverData, value):
     indicator2 = y_columns[1]
     title = '<b>{}</b><br>{}'.format(countryName, indicator2)
     return create_time_series(df, indicator2, title)
+
+# polar chart visualization
+# @app.callback(
+#     Output('polar-chart', 'figure'),
+#     Input('geospatial', 'hoverData'))
+# def update_graph(geoHoverData):
+#     countryName = geoHoverData['points'][0]['hovertext']
+#     df = mergedData[mergedData['Country_Name'] == countryName]
+#     fig = px.bar_polar(df,
+#                      r=?, #what is the values
+#                      theta=?, #what is the category
+#                      )
+#     return fig
+
 # logging
 # @app.callback(
 #     Output('hover-data', 'children'),
