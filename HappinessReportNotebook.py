@@ -178,13 +178,15 @@ fig1.show()
 # In[ ]:
 
 
-geospatialVisual = html.Div([dcc.Graph(id='geospatial', hoverData={'points': [{'hovertext': 'Finland'}]})], style={'padding': '0 20'})
+geospatialVisual = html.Div([dcc.Graph(id='geospatial', hoverData={'points': [
+                            {'hovertext': 'Finland'}]})], style={'padding': '0 20'})
 
 
 # In[ ]:
 
 
-happinessScoreVisual = html.Div([dcc.Graph(id='happiness-score-scatter-line')], style={'padding': '0 20'})
+happinessScoreVisual = html.Div(
+    [dcc.Graph(id='happiness-score-scatter-line')], style={'padding': '0 20'})
 
 
 # In[15]:
@@ -192,29 +194,45 @@ happinessScoreVisual = html.Div([dcc.Graph(id='happiness-score-scatter-line')], 
 app.title = "World Happiness Report Visualization"
 app.layout = html.Div([
     html.Div([
-        html.H1("World Happiness Visualization"),
+        html.H1("World Happiness Visualization",
+                style={
+                    'display': 'flex',
+                    'justify-content': 'center',
+                    'align-items': 'center',
+                    'width': '40%',
+                }),
         html.Div([
-            html.Div([
-                dcc.Dropdown(
-                    options={
-                        'GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)': 'Economic Production',
-                        'Life_expectancy_at_birth,_female_(years)#Life_expectancy_at_birth,_male_(years)': 'Health',
-                        # 'Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)#CPIA_social_protection_rating_(1=low_to_6=high)':'Social Support',
-                        # 'Intentional_homicides_(per_100,000_people)#Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)':'Human Rights',
-                        # 'Proportion_of_people_living_below_50_percent_of_median_income_(%)#Multidimensional_poverty_headcount_ratio_(%_of_total_population)':'Charity',
-                        # 'CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)#CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)':'Corruption'
-                    },
-                    value='GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)',
-                    id='crossfilter-yaxis-column',
-                    placeholder="Select an indicator category"
-                ),
-            ], style={'width': '100%'})
+            html.Img(src="https://source.unsplash.com/random/640x480/?happy,person"),
+            html.H6(["Finland once again become the happiest country in the world, how does the other factor contribute Finland and other country happiness?"]),
+            html.H6(["The dashboard is specifically designed to analyze several variables that are known to impact happiness, including Economic Production, Health, Social Support, Human Rights, Charity, and Corruption. By examining these variables, you can gain insights into how different factors influence happiness scores across countries and regions."]),
+            html.H6(["With its user-friendly interface and interactive features, this dashboard provides a wealth of information on happiness and its contributing factors. You can easily compare happiness scores across countries, visualize trends over time, and explore correlations between different variables and happiness levels."]),
+            html.H6(["Whether you are a researcher, policymaker, or simply someone interested in understanding the science of happiness, this dashboard has everything you need to get started. So come along, and let's explore the fascinating world of happiness together with this amazing dashboard!"]),
         ], style={
-            'width': '100%',
-            'padding': '10px 5px'
-        }),
+            'width': '50%',
+        })
     ], style={
         'display': 'flex',
+        'width': '100%',
+        'gap': '1em',
+        'padding': '10px 125px'
+    }),
+    html.Div([
+        html.Div([
+            dcc.Dropdown(
+                options={
+                    'GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)': 'Economic Production',
+                    'Life_expectancy_at_birth,_female_(years)#Life_expectancy_at_birth,_male_(years)': 'Health',
+                    'Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)#CPIA_social_protection_rating_(1=low_to_6=high)': 'Social Support',
+                    'Intentional_homicides_(per_100,000_people)#Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)': 'Human Rights',
+                    'Proportion_of_people_living_below_50_percent_of_median_income_(%)#Multidimensional_poverty_headcount_ratio_(%_of_total_population)': 'Charity',
+                    'CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)#CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)': 'Corruption'
+                },
+                value='GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)',
+                id='crossfilter-yaxis-column',
+                placeholder="Select an indicator category"
+            ),
+        ], style={'width': '100%'})
+    ], style={
         'width': '100%',
         'padding': '10px 5px'
     }),
@@ -241,6 +259,7 @@ app.layout = html.Div([
     html.Div(dcc.Slider(
         min=mergedData['Time'].min(),
         max=mergedData['Time'].max(),
+        step=None,
         id='year-slider',
         value=mergedData['Time'].max(),
         marks={str(time): str(time) for time in mergedData['Time'].unique()}
@@ -301,6 +320,7 @@ def update_graph(geoHoverData):
 def create_time_series(df, axis_column, title):
     titleTimeSeries = title.replace('_', ' ')
     fig = px.scatter(df, x='Time', y=axis_column)
+    fig.update_traces(connectgaps=True)
 
     fig.update_traces(mode='lines+markers')
 
@@ -311,7 +331,6 @@ def create_time_series(df, axis_column, title):
                        text=titleTimeSeries)
 
     fig.update_layout(height=250, margin={'l': 20, 'b': 30, 'r': 10, 't': 10})
-
     return fig
 
 
