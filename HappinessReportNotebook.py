@@ -173,18 +173,38 @@ happinessScoreVisual = html.Div([
                             dcc.Graph(
                                 id='happiness-score-scatter-line'
                             )
-                        ], style={ 'display': 'inline-block', 'padding': '0 20'})
+                        ], style={'display': 'inline-block', 'padding': '0 20'})
 
 
 # In[15]:
 
-
+app.title = "World Happiness Report Visualization"
 app.layout = html.Div([
+    html.H1("World Happiness Visualization"),
+    html.Div([
+        html.Div([
+            dcc.Dropdown(
+                options={
+                  'GDP_per_capita_growth_(annual_%)#CO2_emissions_(metric_tons_per_capita)':'Economic Production',
+                  'Life_expectancy_at_birth,_female_(years)#Life_expectancy_at_birth,_male_(years)':'Health',
+                  #'Adjusted_savings:_carbon_dioxide_damage_(%_of_GNI)#CPIA_social_protection_rating_(1=low_to_6=high)':'Social Support',
+                  #'Intentional_homicides_(per_100,000_people)#Internally_displaced_persons,_total_displaced_by_conflict_and_violence_(number_of_people)':'Human Rights',
+                  #'Proportion_of_people_living_below_50_percent_of_median_income_(%)#Multidimensional_poverty_headcount_ratio_(%_of_total_population)':'Charity',
+                  #'CPIA_transparency,_accountability,_and_corruption_in_the_public_sector_rating_(1=low_to_6=high)#CPIA_policy_and_institutions_for_environmental_sustainability_rating_(1=low_to_6=high)':'Corruption'
+                },
+                value= 'GDP_per_capita_growth_(annual_%),CO2_emissions_(metric_tons_per_capita)',
+                id='crossfilter-yaxis-column',
+                placeholder= "Select an indicator category"
+            ),
+        ], style={'width': '39%', 'float': 'right', 'display': 'inline-block'})
+    ], style={
+        'padding': '10px 5px'
+    }),
     html.Div([
         geospatialVisual,
         happinessScoreVisual,
     ], style={
-        'width': '50%',
+        'width': '49%',
         'padding': '10px 5px'
     }),
     # html.Div([
@@ -199,6 +219,11 @@ app.layout = html.Div([
     #         """),
     #         html.Pre(id='hover-data')
     #     ], className='three columns'),
+    html.Div([
+        dcc.Graph(id='indicator-series1'),
+        dcc.Graph(id='indicator-series2'),
+    ], style={'display': 'inline-block', 'width': '49%'}),
+
     html.Div(dcc.Slider(
         min=mergedData['Time'].min(),
         max=mergedData['Time'].max(),
@@ -241,8 +266,49 @@ def update_graph(geoHoverData):
                       y="Happiness_Score",
                       hover_name="Country_Name" )
     fig.update_traces(mode='lines+markers')
+
     return fig
 
+def create_time_series(df, axis_column, title):
+
+    fig = px.scatter(df, x='Time', y=axis_column)
+
+    fig.update_traces(mode='lines+markers')
+
+    fig.update_xaxes(showgrid=False)
+
+    fig.add_annotation(x=0, y=0.85, xanchor='left', yanchor='bottom',
+                       xref='paper', yref='paper', showarrow=False, align='left',
+                       text=title)
+
+    fig.update_layout(height=225, margin={'l': 20, 'b': 30, 'r': 10, 't': 10})
+
+    return fig
+
+@app.callback(
+    Output('indicator-series1', 'figure'),
+    Input('geospatial', 'hoverData'),
+    Input('crossfilter-yaxis-column', 'value'))
+def update_indicator_series1(geoHoverData, value):
+    countryName = geoHoverData['points'][0]['hovertext']
+    df=mergedData[mergedData['Country_Name'] == countryName]
+    y_columns= value.split("#")
+    indicator1=y_columns[0]
+    title = '<b>{}</b><br>{}'.format(countryName, indicator1)
+    return create_time_series(df, indicator1, title)
+
+
+@app.callback(
+    Output('indicator-series2', 'figure'),
+    Input('geospatial', 'hoverData'),
+    Input('crossfilter-yaxis-column', 'value'))
+def update_indicator_series2(geoHoverData, value):
+    countryName = geoHoverData['points'][0]['hovertext']
+    df=mergedData[mergedData['Country_Name'] == countryName]
+    y_columns= value.split("#")
+    indicator2=y_columns[1]
+    title = '<b>{}</b><br>{}'.format(countryName, indicator2)
+    return create_time_series(df, indicator2, title)
 # logging
 # @app.callback(
 #     Output('hover-data', 'children'),
@@ -254,7 +320,7 @@ def update_graph(geoHoverData):
 
 
 if __name__ == '__main__':
-    app.run_server(port=8088, debug=True)
+    app.run_server(port=8092, debug=True)
 
 
 # In[ ]:
