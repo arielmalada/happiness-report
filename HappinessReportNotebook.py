@@ -5,17 +5,45 @@
 
 import json
 import numpy as np 
-import pandas as pd
+import pandas as pd 
 import matplotlib.pyplot as plt 
-#import dash as dash
+import dash as dash
 import plotly as py
 import plotly.express as px
 import plotly.graph_objects as go
 
+
 from plotly.offline import init_notebook_mode, iplot, plot
+init_notebook_mode(connected=True)
+from dash import Dash, html, dcc
 from dash import Dash, html, dcc, Input, Output
 
-init_notebook_mode(connected=True)
+# Permanently changes the pandas settings
+# pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.width', None)
+# pd.set_option('display.max_colwidth', -1)
+
+# Reset pandas settings
+# pd.reset_option("all")
+
+# TODO: implement polar chart which will look for the correct dataset name, ie "Y[YearNumber]ScoresdetDf" 
+# and column names as specified below:
+    # subscores index names model: 
+    # 2015-16 pattern:
+    # Economy_(GDP_per_Capita)
+    # Family
+    # Health_(Life_Expectancy)
+    # Freedom
+    # Trust_(Government_Corruption)
+    # Generosity
+    # Dystopia_Residual
+# Because subscores ranges may change yearly depending on the way its calculated, we need to:
+    # Normalize (0-1 rounding up) by
+        # looking for local-column min and max
+        # divide accordingly
+    # Then dynamically feed min/max values to the polar graph axis for every actualization,
+    # plus normalized values to render the radius of every go.Barpolar
 
 
 
@@ -43,6 +71,9 @@ happinessDataDf.columns = happinessDataDf.columns.str.replace(' ', '_')
 Y2015ScoresDf = pd.read_csv("./data/2015.csv")
 Y2015ScoresDf.columns = Y2015ScoresDf.columns.str.replace(' ', '_')
 Y2015ScoresDf.columns = Y2015ScoresDf.columns.str.replace('Country', 'Country_Name')
+Y2015ScoresdetDf = Y2015ScoresDf
+# display(Y2015ScoresdetDf)
+
 Y2015ScoresDf = Y2015ScoresDf[['Country_Name',"Happiness_Score"]]
 Y2015Df = pd.merge(happinessDataDf.query('Time_Code=="YR2015"'), Y2015ScoresDf, on='Country_Name')
 # display(Y2015Df)
@@ -55,6 +86,9 @@ Y2015Df = pd.merge(happinessDataDf.query('Time_Code=="YR2015"'), Y2015ScoresDf, 
 Y2016ScoresDf = pd.read_csv("./data/2016.csv")
 Y2016ScoresDf.columns = Y2016ScoresDf.columns.str.replace(' ', '_')
 Y2016ScoresDf.columns = Y2016ScoresDf.columns.str.replace('Country', 'Country_Name')
+Y2016ScoresdetDf = Y2016ScoresDf
+# display(Y2016ScoresdetDf)
+
 Y2016ScoresDf = Y2016ScoresDf[['Country_Name',"Happiness_Score"]]
 Y2016Df = pd.merge(happinessDataDf.query('Time_Code=="YR2016"'), Y2016ScoresDf, on='Country_Name')
 # display(Y2016Df)
@@ -65,10 +99,21 @@ Y2016Df = pd.merge(happinessDataDf.query('Time_Code=="YR2016"'), Y2016ScoresDf, 
 
 # Merging 2017 Happiness Score
 Y2017ScoresDf = pd.read_csv("./data/2017.csv")
+Y2017ScoresDf = Y2017ScoresDf.replace("..", '.')
 Y2017ScoresDf.columns = Y2017ScoresDf.columns.str.replace('.', '_')
+Y2017ScoresdetDf = Y2017ScoresDf
+# display(Y2017Df)
+Y2017ScoresdetDf = Y2017ScoresdetDf.rename(columns={'Economy__GDP_per_Capita_': 'Economy_(GDP_per_Capita)'})
+Y2017ScoresdetDf = Y2017ScoresdetDf.rename(columns={"Health__Life_Expectancy_": "Health_(Life_Expectancy)"})
+Y2017ScoresdetDf = Y2017ScoresdetDf.rename(columns={"Freedom_to_make_life_choices": "Freedom"})
+Y2017ScoresdetDf = Y2017ScoresdetDf.rename(columns={"Trust__Government_Corruption_": "Trust_(Government_Corruption)"})
+
+# display(Y2017ScoresdetDf)
+
 Y2017ScoresDf.columns = Y2017ScoresDf.columns.str.replace('Country', 'Country_Name')
 Y2017ScoresDf = Y2017ScoresDf[['Country_Name',"Happiness_Score"]]
 Y2017Df = pd.merge(happinessDataDf.query('Time_Code=="YR2017"'), Y2017ScoresDf, on='Country_Name')
+# display(Y2017ScoresDf)
 # display(Y2017Df)
 
 
@@ -80,8 +125,22 @@ Y2018ScoresDf = pd.read_csv("./data/2018.csv")
 Y2018ScoresDf.columns = Y2018ScoresDf.columns.str.replace(' ', '_')
 Y2018ScoresDf.columns = Y2018ScoresDf.columns.str.replace('Country_or_region', 'Country_Name')
 Y2018ScoresDf.columns = Y2018ScoresDf.columns.str.replace('Score', 'Happiness_Score')
+Y2018ScoresdetDf = Y2018ScoresDf
+# display(Y2018Df)
+Y2018ScoresdetDf.rename(columns={"GDP_per_capita": "Economy_(GDP_per_Capita)"}, inplace=True)
+Y2018ScoresdetDf.rename(columns={"Social_support": "Family"}, inplace=True)
+Y2018ScoresdetDf.rename(columns={"Healthy_life_expectancy": "Health_(Life_Expectancy)"}, inplace=True)
+Y2018ScoresdetDf.rename(columns={"Freedom_to_make_life_choices": "Freedom"}, inplace=True)
+Y2018ScoresdetDf.rename(columns={"Generosity": "Generosity"}, inplace=True)
+Y2018ScoresdetDf.rename(columns={"Perceptions_of_corruption": "Trust_(Government_Corruption)"}, inplace=True)
+# Y2018Df.rename(columns={"Dystopia_+_residual": "Dystopia_Residual"}, inplace=True)
+# no dystopia
+
+# display(Y2018ScoresdetDf)
+
 Y2018ScoresDf = Y2018ScoresDf[['Country_Name',"Happiness_Score"]]
 Y2018Df = pd.merge(happinessDataDf.query('Time_Code=="YR2018"'), Y2018ScoresDf, on='Country_Name')
+# display(Y2018ScoresDf)
 # display(Y2018Df)
 
 
@@ -93,9 +152,23 @@ Y2019ScoresDf = pd.read_csv("./data/2019.csv")
 Y2019ScoresDf.columns = Y2019ScoresDf.columns.str.replace(' ', '_')
 Y2019ScoresDf.columns = Y2019ScoresDf.columns.str.replace('Country_or_region', 'Country_Name')
 Y2019ScoresDf.columns = Y2019ScoresDf.columns.str.replace('Score', 'Happiness_Score')
+Y2019ScoresdetDf = Y2019ScoresDf
+# display(Y2019Df)
+Y2019ScoresdetDf.rename(columns={"GDP_per_capita": "Economy_(GDP_per_Capita)"}, inplace=True)
+Y2019ScoresdetDf.rename(columns={"Social_support": "Family"}, inplace=True)
+Y2019ScoresdetDf.rename(columns={"Healthy_life_expectancy": "Health_(Life_Expectancy)"}, inplace=True)
+Y2019ScoresdetDf.rename(columns={"Freedom_to_make_life_choices": "Freedom"}, inplace=True)
+Y2019ScoresdetDf.rename(columns={"Generosity": "Generosity"}, inplace=True)
+Y2019ScoresdetDf.rename(columns={"Perceptions_of_corruption": "Trust_(Government_Corruption)"}, inplace=True)
+# Y2019Df.rename(columns={"Dystopia_+_residual": "Dystopia_Residual"}, inplace=True)
+# no dystopia
+
+# display(Y2019ScoresdetDf)
+
 Y2019ScoresDf = Y2019ScoresDf[['Country_Name',"Happiness_Score"]]
 
 Y2019Df = pd.merge(happinessDataDf.query('Time_Code=="YR2019"'), Y2019ScoresDf, on='Country_Name')
+# display(Y2019ScoresDf)
 # display(Y2019Df)
 
 
@@ -107,9 +180,22 @@ Y2020ScoresDf = pd.read_csv("./data/2020.csv")
 Y2020ScoresDf.columns = Y2020ScoresDf.columns.str.replace(' ', '_')
 Y2020ScoresDf.columns = Y2020ScoresDf.columns.str.replace('Country_name', 'Country_Name')
 Y2020ScoresDf.columns = Y2020ScoresDf.columns.str.replace('Ladder_score', 'Happiness_Score')
+Y2020ScoresdetDf = Y2020ScoresDf
+# display(Y2020Df)
+Y2020ScoresdetDf.rename(columns={"Logged_GDP_per_capita": "Economy_(GDP_per_Capita)"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Social_support": "Family"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Healthy_life_expectancy": "Health_(Life_Expectancy)"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Freedom_to_make_life_choices": "Freedom"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Generosity": "Generosity"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Perceptions_of_corruption": "Trust_(Government_Corruption)"}, inplace=True)
+Y2020ScoresdetDf.rename(columns={"Dystopia_+_residual": "Dystopia_Residual"}, inplace=True)
+
+# display(Y2020ScoresdetDf)
+
 Y2020ScoresDf = Y2020ScoresDf[['Country_Name',"Happiness_Score"]]
 
 Y2020Df = pd.merge(happinessDataDf.query('Time_Code=="YR2020"'), Y2020ScoresDf, on='Country_Name')
+# display(Y2020ScoresDf)
 # display(Y2020Df)
 
 
@@ -121,9 +207,21 @@ Y2021ScoresDf = pd.read_csv("./data/2021.csv")
 Y2021ScoresDf.columns = Y2021ScoresDf.columns.str.replace(' ', '_')
 Y2021ScoresDf.columns = Y2021ScoresDf.columns.str.replace('Country_name', 'Country_Name')
 Y2021ScoresDf.columns = Y2021ScoresDf.columns.str.replace('Ladder_score', 'Happiness_Score')
-Y2021ScoresDf = Y2021ScoresDf[['Country_Name',"Happiness_Score"]]
+Y2021ScoresdetDf = Y2021ScoresDf
+# display(Y2021ScoresdetDf)
+Y2021ScoresdetDf.rename(columns={"Logged_GDP_per_capita": "Economy_(GDP_per_Capita)"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Social_support": "Family"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Healthy_life_expectancy": "Health_(Life_Expectancy)"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Freedom_to_make_life_choices": "Freedom"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Generosity": "Generosity"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Perceptions_of_corruption": "Trust_(Government_Corruption)"}, inplace=True)
+Y2021ScoresdetDf.rename(columns={"Dystopia_+_residual": "Dystopia_Residual"}, inplace=True)
 
+# display(Y2021ScoresdetDf)
+
+Y2021ScoresDf = Y2021ScoresDf[['Country_Name',"Happiness_Score"]]
 Y2021Df = pd.merge(happinessDataDf.query('Time_Code=="YR2021"'), Y2021ScoresDf, on='Country_Name')
+# display(Y2021ScoresDf)
 # display(Y2021Df)
 
 
@@ -262,6 +360,15 @@ def update_graph(HoverData):
 
 # In[18]:
 
+## WIP from there and below !!
+
+values = mergedData[(mergedData['Country_Name'] == "Finland")
+                  & (mergedData['Time'] == 2021)]
+
+# display(values)
+
+# In[19]:
+
 # # Data for the polar chart
 # categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'Category 7']
 # values = [4, 7, 2, 5, 1, 6, 3]
@@ -296,19 +403,57 @@ def update_graph(HoverData):
 # i.e: once a couple Country/Year is chosen, display the score detail following previously commented code
 
 # happiness score detail visualization
-@app.callback(
-    Output('happiness-score-detail-polarchart', 'figure'),
-    Input('happiness-score-scatter-line', 'hoverData'))
-def update_graph(geoHoverData):
-    countryName = geoHoverData['points'][0]['hovertext']
-    df=mergedData[mergedData['Country_Name'] == countryName]
-    fig =  px.scatter(df, 
-                      x="Time", 
-                      y="Happiness_Score",
-                      hover_name="Country_Name" )
-    fig.update_traces(mode='lines+markers')
-    return fig
+# @app.callback(
+#     Output('happiness-score-detail-polarchart', 'figure'),
+#     Input('happiness-score-scatter-line', 'hoverData'))
+# def update_graph(geoHoverData):
+#     countryName = geoHoverData['points'][0]['hovertext']
+#     df=mergedData[mergedData['Country_Name'] == countryName]
+#     fig =  px.scatter(df, 
+#                       x="Time", 
+#                       y="Happiness_Score",
+#                       hover_name="Country_Name" )
+#     fig.update_traces(mode='lines+markers')
+#     return fig
 
+# In[20]:
+
+# 19V2
+
+# Data for the polar chart
+# categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'Category 7']
+categories = ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5', 'Category 6', 'Category 7']
+values = [4, 7, 2, 5, 1, 6, 3]
+# values = mergedData[(mergedData['Country_Name'] == countryName)
+#                   & (mergedData['Time'] == year_value)]
+
+colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan', 'magenta']
+
+# countryName = geoHoverData['points'][0]['hovertext']
+#     df=
+
+# Create traces for each category
+traces = []
+for i in range(len(categories)):
+    trace = go.Barpolar(
+        r=[values[i]],
+        theta=[categories[i]],
+        width=1,
+        marker=dict(color=colors[i]),
+        name=categories[i]
+    )
+    traces.append(trace)
+
+# Layout for the polar chart
+layout = go.Layout(
+    polar=dict(
+        radialaxis=dict(range=[0, max(values)]),
+    ),
+)
+
+# Create the figure
+fig2 = go.Figure(data=traces, layout=layout)
+fig2.show()
 
 
 # In[ ]:
