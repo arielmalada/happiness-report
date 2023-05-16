@@ -202,7 +202,8 @@ app.layout = html.Div([
                     'width': '40%',
                 }),
         html.Div([
-            html.Img(src="https://source.unsplash.com/random/640x480/?happy,person"),
+            html.Img(
+                src="https://source.unsplash.com/random/640x480/?happy,person"),
             html.H6(["Finland once again become the happiest country in the world, how does the other factor contribute Finland and other country happiness?"]),
             html.H6(["The dashboard is specifically designed to analyze several variables that are known to impact happiness, including Economic Production, Health, Social Support, Human Rights, Charity, and Corruption. By examining these variables, you can gain insights into how different factors influence happiness scores across countries and regions."]),
             html.H6(["With its user-friendly interface and interactive features, this dashboard provides a wealth of information on happiness and its contributing factors. You can easily compare happiness scores across countries, visualize trends over time, and explore correlations between different variables and happiness levels."]),
@@ -246,8 +247,11 @@ app.layout = html.Div([
 
         }),
         html.Div([
+            html.H2(id='details'),
             dcc.Graph(id='indicator-series1'),
             dcc.Graph(id='indicator-series2'),
+            dcc.Graph(id='indicator-series3'),
+            dcc.Graph(id='indicator-series4'),
         ], style={'width': '29%'}),
     ], style={
         'display': 'flex',
@@ -334,6 +338,22 @@ def create_time_series(df, axis_column, title):
     return fig
 
 
+def create_happiness_series(df, axis_column, title):
+    titleHappinessSeries = title.replace('_', ' ')
+    fig = px.scatter(df, x='Happiness_Score', y=axis_column,
+                     hover_name='Country_Name')
+    fig.update_traces(connectgaps=True)
+
+    fig.update_xaxes(showgrid=False)
+
+    fig.add_annotation(x=0, y=0.85, xanchor='left', yanchor='bottom',
+                       xref='paper', yref='paper', showarrow=False, align='left',
+                       text=titleHappinessSeries)
+
+    fig.update_layout(height=250, margin={'l': 20, 'b': 30, 'r': 10, 't': 10})
+    return fig
+
+
 @app.callback(
     Output('indicator-series1', 'figure'),
     Input('geospatial', 'hoverData'),
@@ -358,6 +378,41 @@ def update_indicator_series2(geoHoverData, value):
     indicator2 = y_columns[1]
     title = '<b>{}</b><br>{}'.format(countryName, indicator2)
     return create_time_series(df, indicator2, title)
+
+
+@app.callback(
+    Output('indicator-series3', 'figure'),
+    Input('year-slider', 'value'),
+    Input('crossfilter-yaxis-column', 'value'))
+def update_indicator_series3(year_value, value):
+    df = mergedData[mergedData['Time'] == year_value]
+    y_columns = value.split("#")
+    indicator3 = y_columns[0]
+    title = '<b>{}</b><br><b>{}</b> {}'.format('World', year_value, indicator3)
+    return create_happiness_series(df, indicator3, title)
+
+
+@app.callback(
+    Output('indicator-series4', 'figure'),
+    Input('year-slider', 'value'),
+    Input('crossfilter-yaxis-column', 'value'))
+def update_indicator_series4(year_value, value):
+    df = mergedData[mergedData['Time'] == year_value]
+    y_columns = value.split("#")
+    indicator4 = y_columns[1]
+    title = '<b>{}</b><br><b>{}</b> {}'.format('World', year_value, indicator4)
+    return create_happiness_series(df, indicator4, title)
+
+@app.callback(
+    Output(component_id='details', component_property='children'),
+    Input('year-slider', 'value'),
+    Input('geospatial', 'hoverData'),)
+def update_indicator_series4(year_value, geoHoverData):
+    countryName = geoHoverData['points'][0]['hovertext']
+    df = mergedData[mergedData['Country_Name'] == countryName]
+    selectedScore = df[df['Time'] == year_value].iloc[0]['Happiness_Score']
+    title = '{} {} {} {}'.format(countryName, year_value, "Score", selectedScore)
+    return title
 # logging
 # @app.callback(
 #     Output('hover-data', 'children'),
